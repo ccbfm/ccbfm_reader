@@ -1,3 +1,10 @@
+import 'dart:convert';
+
+import 'package:ccbfm_reader/model/book.dart';
+import 'package:ccbfm_reader/view/book_search.dart';
+import 'package:ccbfm_reader/view/book_settings.dart';
+import 'package:ccbfm_reader/view/book_shelf.dart';
+import 'package:ccbfm_reader/view/book_listen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -50,24 +57,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final List<String> _navigationTitle = const ["书架", "听书", "", "搜索", "设置"];
   int _index = 0;
-  List<String> _data = [
-    "11",
-    "22",
-    "11",
-    "22",
-    "11",
-    "22",
-    "11",
-    "22",
-    "11",
-    "22",
-    "11",
-    "22",
-    "11",
-    "22",
-    "11",
-    "22",
-  ];
+  final _pageController = PageController(initialPage: 0);
 
   void clickFloatingButton() {}
 
@@ -80,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         centerTitle: true,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
@@ -88,55 +78,40 @@ class _MyHomePageState extends State<MyHomePage> {
           _navigationTitle[_index],
           textAlign: TextAlign.center,
         ),
-      ),
+      ),*/
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-                child: GridView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(10.0),
-              scrollDirection: Axis.vertical,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 20,
-                childAspectRatio: 0.75,
-              ),
-              itemCount: _data.length,
-              itemBuilder: (BuildContext context, int index) {
-                return getItemContainer(_data[index]);
-              },
-            )),
-          ],
+        child: PageView.builder(
+          controller: _pageController,
+          onPageChanged: onPageChanged,
+          itemBuilder: (BuildContext context, int index) {
+            switch(index){
+              case 0:
+                return const BookShelf();
+              case 1:
+                return const BookListen();
+              case 2:
+                return const BookSearch();
+              case 3:
+                return const BookSettings();
+            }
+            return const Text("未定义");
+          },
+          itemCount: 4,
+          ///禁止滑动
+          physics: const NeverScrollableScrollPhysics(),
         ),
       ),
 
       floatingActionButton: Container(
         margin: const EdgeInsets.only(top: 35),
+
         ///边框
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(60),
             color: Colors.grey,
-            border: Border.all(color: Colors.white, width: 3.0)
-        ),
+            border: Border.all(color: Colors.white, width: 3.0)),
         child: FloatingActionButton(
           onPressed: clickFloatingButton,
           tooltip: '听书',
@@ -158,15 +133,23 @@ class _MyHomePageState extends State<MyHomePage> {
           getNavigationItemContainer(Icons.search, _navigationTitle[3]),
           getNavigationItemContainer(Icons.settings, _navigationTitle[4]),
         ],
+
         ///显示label
         type: BottomNavigationBarType.fixed,
         onTap: onNavigationTap,
-        currentIndex: 1,
+        currentIndex: _index,
+        selectedFontSize: 12.0,
+        unselectedFontSize: 12.0,
       ),
     );
   }
 
-  void onNavigationTap(int index) {
+  void onPageChanged(int index) {
+    if (index == 2) {
+      index = 3;
+    } else if (index == 3) {
+      index = 4;
+    }
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -177,17 +160,14 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Widget getItemContainer(String item) {
-    return Container(
-      width: 5.0,
-      height: 5.0,
-      alignment: Alignment.center,
-      child: Text(
-        item,
-        style: const TextStyle(color: Colors.white, fontSize: 20),
-      ),
-      color: Colors.blue,
-    );
+  void onNavigationTap(int index) {
+    if (index == 3) {
+      index = 2;
+    } else if (index == 4) {
+      index = 3;
+    }
+    _pageController.jumpToPage(index);
+    //animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.ease);
   }
 
   BottomNavigationBarItem getNavigationItemContainer(
