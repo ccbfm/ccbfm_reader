@@ -18,9 +18,39 @@ class BookShelf extends StatefulWidget {
   State<BookShelf> createState() => BookShelfState();
 }
 
+enum ShelfModel {
+  list,
+  grid,
+}
+
 class BookShelfState extends State<BookShelf> {
+
+  ShelfModel _shelfModel = ShelfModel.grid;
+
   @override
   Widget build(BuildContext context) {
+
+    List<PopupMenuItem<String>> pmItem = [];
+    SliverGridDelegate gridDelegate;
+    if(_shelfModel == ShelfModel.grid){
+      pmItem.add(createSelectView(Icons.list, '列表模式', 'AA'));
+      gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 20,
+        childAspectRatio: 0.75,
+      );
+    } else {
+      pmItem.add(createSelectView(Icons.apps, '网格模式', 'AB'));
+      gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 1,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 20,
+        childAspectRatio: 3,
+      );
+    }
+    pmItem.add(createSelectView(Icons.file_download, '导入图书', 'B'));
+
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -30,6 +60,28 @@ class BookShelfState extends State<BookShelf> {
             "书架",
             textAlign: TextAlign.center,
           ),
+          actions: [
+            PopupMenuButton<String>(
+              itemBuilder: (BuildContext context) => pmItem,
+              onSelected: (String action) {
+                // 点击选项的时候
+                switch (action) {
+                  case 'AA':
+                    setState(() {
+                      _shelfModel = ShelfModel.list;
+                    });
+                    break;
+                  case 'AB':
+                    setState(() {
+                      _shelfModel = ShelfModel.grid;
+                    });
+                    break;
+                  case 'B':
+                    break;
+                }
+              },
+            ),
+          ],
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -39,12 +91,7 @@ class BookShelfState extends State<BookShelf> {
               shrinkWrap: true,
               padding: const EdgeInsets.all(10.0),
               scrollDirection: Axis.vertical,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 20,
-                childAspectRatio: 0.75,
-              ),
+              gridDelegate: gridDelegate,
               itemCount: 4,
               itemBuilder: (BuildContext context, int index) {
                 return getItemContainer("data");
@@ -65,5 +112,19 @@ class BookShelfState extends State<BookShelf> {
       ),
       color: Colors.blue,
     );
+  }
+
+  // 返回每个隐藏的菜单项
+  PopupMenuItem<String> createSelectView(
+      IconData icon, String text, String id) {
+    return PopupMenuItem<String>(
+        value: id,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Icon(icon, color: Colors.blue),
+            Text(text),
+          ],
+        ));
   }
 }

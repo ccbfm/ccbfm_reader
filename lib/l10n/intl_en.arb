@@ -1,0 +1,7 @@
+{
+  "app_name" : "CcReader",
+  "book_shelf" : "BookShelf",
+  "book_listen" : "听书",
+  "book_search" : "搜索",
+  "book_settings" : "设置"
+}

@@ -1,11 +1,10 @@
-import 'dart:convert';
-
-import 'package:ccbfm_reader/model/book.dart';
+import 'package:ccbfm_reader/generated/l10n.dart';
 import 'package:ccbfm_reader/view/book_search.dart';
 import 'package:ccbfm_reader/view/book_settings.dart';
 import 'package:ccbfm_reader/view/book_shelf.dart';
 import 'package:ccbfm_reader/view/book_listen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +17,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Cc阅读',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -31,13 +29,20 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Cc阅读'),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        S.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key? key}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -48,14 +53,11 @@ class MyHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<String> _navigationTitle = const ["书架", "听书", "", "搜索", "设置"];
   int _index = 0;
   final _pageController = PageController(initialPage: 0);
 
@@ -63,12 +65,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> _navigationTitle = [
+      S.of(context).book_shelf,
+      S.of(context).book_listen,
+      "",
+      S.of(context).book_search,
+      S.of(context).book_settings,
+    ];
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
     return Scaffold(
       /*appBar: AppBar(
         centerTitle: true,
@@ -86,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
           controller: _pageController,
           onPageChanged: onPageChanged,
           itemBuilder: (BuildContext context, int index) {
-            switch(index){
+            switch (index) {
               case 0:
                 return const BookShelf();
               case 1:
@@ -99,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
             return const Text("未定义");
           },
           itemCount: 4,
+
           ///禁止滑动
           physics: const NeverScrollableScrollPhysics(),
         ),
