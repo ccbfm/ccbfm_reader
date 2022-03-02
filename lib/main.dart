@@ -139,21 +139,27 @@ class _MyHomePageState extends State<MyHomePage> {
       //floatingActionButtonLocation: CustomFloatingActionButtonLocation(FloatingActionButtonLocation.centerDocked, 0, 16),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       // ting nicer for build methods.
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          getNavigationItemContainer(Icons.book, _navigationTitle[0]),
-          getNavigationItemContainer(Icons.hearing, _navigationTitle[1]),
-          getNavigationItemFloatingActionButton(),
-          getNavigationItemContainer(Icons.search, _navigationTitle[3]),
-          getNavigationItemContainer(Icons.settings, _navigationTitle[4]),
-        ],
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
+          items: [
+            getNavigationItemContainer(Icons.book, _navigationTitle[0]),
+            getNavigationItemContainer(Icons.hearing, _navigationTitle[1]),
+            getNavigationItemFloatingActionButton(),
+            getNavigationItemContainer(Icons.search, _navigationTitle[3]),
+            getNavigationItemContainer(Icons.settings, _navigationTitle[4]),
+          ],
 
-        ///显示label
-        type: BottomNavigationBarType.fixed,
-        onTap: onNavigationTap,
-        currentIndex: _index,
-        selectedFontSize: 12.0,
-        unselectedFontSize: 12.0,
+          ///显示label
+          type: BottomNavigationBarType.fixed,
+          onTap: onNavigationTap,
+          currentIndex: _index,
+          selectedFontSize: 12.0,
+          unselectedFontSize: 12.0,
+        ),
       ),
     );
   }
@@ -175,6 +181,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onNavigationTap(int index) {
+    if (index == 2) {
+      return;
+    }
     if (index == 3) {
       index = 2;
     } else if (index == 4) {
@@ -197,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return const BottomNavigationBarItem(
       icon: Icon(null),
       label: "",
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.transparent,
     );
   }
 }

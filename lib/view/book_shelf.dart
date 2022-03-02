@@ -2,12 +2,12 @@
 
 import 'dart:collection';
 
-import 'package:ccbfm_reader/db/DBHelper.dart';
+import 'package:ccbfm_reader/db/db_helper.dart';
 import 'package:ccbfm_reader/db/database.dart';
 import 'package:ccbfm_reader/db/entity/json_data.dart';
 import 'package:ccbfm_reader/generated/l10n.dart';
 import 'package:ccbfm_reader/model/book.dart';
-import 'package:ccbfm_reader/persistent/SP.dart';
+import 'package:ccbfm_reader/persistent/sp.dart';
 
 import 'package:flutter/material.dart';
 
@@ -44,7 +44,7 @@ class BookShelfState extends State<BookShelf> {
   void initState() {
     super.initState();
     if (widget._listBook.isEmpty) {
-      loadData();
+
       //widget._listBook.addAll(_bookList);
       widget._listBook.add(Book("bookName1bookName1", ""));
       widget._listBook.add(Book("bookName2", ""));
@@ -69,12 +69,13 @@ class BookShelfState extends State<BookShelf> {
       _shelfModel = widget._keyValue[keyShelfModel] as ShelfModel;
       _bookList = (widget._listBook);
     }
+    loadData();
   }
 
   void loadData() {
-    DBHelper.build().then((value) {
+    DBHelper.db().then((value) {
       value.jsonDataDao.findAllByType(1).then((value) {
-        print("value=${value.length}");
+        print("value22=${value.length}");
       });
     });
   }
@@ -212,12 +213,15 @@ class BookShelfState extends State<BookShelf> {
             const SizedBox(
               height: 5,
             ),
-            Text(
-              book.bookName,
-              style: const TextStyle(color: Colors.black, fontSize: 20),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            )
+            SizedBox(
+              child: Text(
+                book.bookName,
+                style: const TextStyle(color: Colors.black, fontSize: 20),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              height: 50,
+            ),
           ],
         ),
         color: Colors.transparent,
