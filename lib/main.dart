@@ -60,6 +60,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _index = 0;
   final _pageController = PageController(initialPage: 0);
+  final List<StatefulWidget> _pageView = [
+    BookShelf(),
+    const BookListen(),
+    const BookSearch(),
+    const BookSettings(),
+  ];
 
   void clickFloatingButton() {}
 
@@ -98,13 +104,10 @@ class _MyHomePageState extends State<MyHomePage> {
           itemBuilder: (BuildContext context, int index) {
             switch (index) {
               case 0:
-                return const BookShelf();
               case 1:
-                return const BookListen();
               case 2:
-                return const BookSearch();
               case 3:
-                return const BookSettings();
+                return _pageView[index];
             }
             return const Text("未定义");
           },
