@@ -14,3 +14,7 @@ class JsonData{
 
   JsonData(this.id, this.type, this.jsonString);
 }
+
+class JsonDataType {
+  static const int book = 1;
+}

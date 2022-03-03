@@ -3,13 +3,15 @@
 import 'dart:collection';
 
 import 'package:ccbfm_reader/db/db_helper.dart';
-import 'package:ccbfm_reader/db/database.dart';
 import 'package:ccbfm_reader/db/entity/json_data.dart';
 import 'package:ccbfm_reader/generated/l10n.dart';
 import 'package:ccbfm_reader/model/book.dart';
 import 'package:ccbfm_reader/persistent/sp.dart';
-
+import 'package:ccbfm_reader/util/log_utils.dart';
 import 'package:flutter/material.dart';
+
+const String _tag = "BookShelf";
+const bool _out = true;
 
 class BookShelf extends StatefulWidget {
   BookShelf({Key? key}) : super(key: key);
@@ -44,7 +46,6 @@ class BookShelfState extends State<BookShelf> {
   void initState() {
     super.initState();
     if (widget._listBook.isEmpty) {
-
       //widget._listBook.addAll(_bookList);
       widget._listBook.add(Book("bookName1bookName1", ""));
       widget._listBook.add(Book("bookName2", ""));
@@ -74,8 +75,9 @@ class BookShelfState extends State<BookShelf> {
 
   void loadData() {
     DBHelper.db().then((value) {
-      value.jsonDataDao.findAllByType(1).then((value) {
-        print("value22=${value.length}");
+      value.jsonDataDao.findAllByType(JsonDataType.book).then((value) {
+        LogUtils.v(_out, _tag, "loadData-length=${value.length}");
+
       });
     });
   }
