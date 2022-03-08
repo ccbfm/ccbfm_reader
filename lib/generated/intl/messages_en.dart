@@ -26,6 +26,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "book_listen": MessageLookupByLibrary.simpleMessage("听书"),
         "book_search": MessageLookupByLibrary.simpleMessage("搜索"),
         "book_settings": MessageLookupByLibrary.simpleMessage("设置"),
-        "book_shelf": MessageLookupByLibrary.simpleMessage("BookShelf")
+        "book_shelf": MessageLookupByLibrary.simpleMessage("BookShelf"),
+        "data_none": MessageLookupByLibrary.simpleMessage("没有数据"),
+        "load_loading": MessageLookupByLibrary.simpleMessage("加载中...")
       };
 }

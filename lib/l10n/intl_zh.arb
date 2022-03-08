@@ -3,5 +3,9 @@
   "book_shelf" : "书架",
   "book_listen" : "听书",
   "book_search" : "搜索",
-  "book_settings" : "设置"
+  "book_settings" : "设置",
+
+  "load_loading" : "加载中...",
+
+  "data_none" : "没有数据"
 }

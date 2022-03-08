@@ -99,6 +99,26 @@ class S {
       args: [],
     );
   }
+
+  /// `加载中...`
+  String get load_loading {
+    return Intl.message(
+      '加载中...',
+      name: 'load_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `没有数据`
+  String get data_none {
+    return Intl.message(
+      '没有数据',
+      name: 'data_none',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

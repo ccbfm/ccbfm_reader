@@ -6,6 +6,7 @@ import 'package:ccbfm_reader/view/book_listen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+///_修饰的变量 是私有属性 必须跨文件才生效，在同一个文件内是不生效的
 void main() {
   runApp(const MyApp());
 }
@@ -102,16 +103,9 @@ class _MyHomePageState extends State<MyHomePage> {
           controller: _pageController,
           onPageChanged: onPageChanged,
           itemBuilder: (BuildContext context, int index) {
-            switch (index) {
-              case 0:
-              case 1:
-              case 2:
-              case 3:
-                return _pageView[index];
-            }
-            return const Text("未定义");
+            return _pageView[index];
           },
-          itemCount: 4,
+          itemCount: _pageView.length,
 
           ///禁止滑动
           physics: const NeverScrollableScrollPhysics(),

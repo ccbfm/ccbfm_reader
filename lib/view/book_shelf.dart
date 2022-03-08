@@ -2,12 +2,12 @@
 
 import 'dart:collection';
 
-import 'package:ccbfm_reader/db/db_helper.dart';
-import 'package:ccbfm_reader/db/entity/json_data.dart';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:ccbfm_reader/generated/l10n.dart';
 import 'package:ccbfm_reader/model/book.dart';
 import 'package:ccbfm_reader/persistent/sp.dart';
-import 'package:ccbfm_reader/util/log_utils.dart';
+import 'package:ccbfm_reader/view/constant/shelf_constant.dart';
+import 'package:ccbfm_reader/view/p/shelf_presenter.dart';
 import 'package:flutter/material.dart';
 
 const String _tag = "BookShelf";
@@ -31,68 +31,41 @@ class BookShelf extends StatefulWidget {
   State<BookShelf> createState() => BookShelfState();
 }
 
-const String keyShelfModel = "ShelfModel";
-enum ShelfModel {
-  none,
-  list,
-  grid,
-}
-
-class BookShelfState extends State<BookShelf> {
-  ShelfModel _shelfModel = ShelfModel.none;
+class BookShelfState extends State<BookShelf> implements ShelfView {
+  PoseModel _poseModel = PoseModel.none;
   List<Book> _bookList = [];
+  late ShelfPresenter _presenter;
+  late String _showDisplay;
 
   @override
   void initState() {
     super.initState();
-    if (widget._listBook.isEmpty) {
-      //widget._listBook.addAll(_bookList);
-      widget._listBook.add(Book("bookName1bookName1", ""));
-      widget._listBook.add(Book("bookName2", ""));
-      widget._listBook.add(Book("bookName3", ""));
-      widget._listBook.add(Book("bookName4", ""));
-      widget._listBook.add(Book("bookName1", ""));
-      widget._listBook.add(Book("bookName2", ""));
-      widget._listBook.add(Book("bookName3", ""));
-      widget._listBook.add(Book("bookName4", ""));
-      _bookList = (widget._listBook);
-      _bookList.add(Book("bookName5", ""));
-      SP.getStringHasDefault(keyShelfModel, ShelfModel.grid.name).then((value) {
-        if (value == ShelfModel.grid.name) {
-          _shelfModel = ShelfModel.grid;
-        } else if (value == ShelfModel.list.name) {
-          _shelfModel = ShelfModel.list;
-        }
-        widget._keyValue[keyShelfModel] = _shelfModel;
-        setState(() {});
-      });
-    } else {
-      _shelfModel = widget._keyValue[keyShelfModel] as ShelfModel;
-      _bookList = (widget._listBook);
-    }
-    loadData();
+    _loadData();
   }
 
-  void loadData() {
-    DBHelper.db().then((value) {
-      value.jsonDataDao.findAllByType(JsonDataType.book).then((value) {
-        LogUtils.v(_out, _tag, "loadData-length=${value.length}");
-
-      });
-    });
+  void _loadData() {
+    _showDisplay = S.of(context).load_loading;
+    _presenter = ShelfPresenter(this, context);
+    if (widget._listBook.isEmpty) {
+      _presenter.loadBook();
+    } else {
+      _poseModel = widget._keyValue[keyShelfPoseModel] as PoseModel;
+      _bookList = (widget._listBook);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+
     List<PopupMenuItem<String>> pmItem = [];
     Widget body;
-    if (_shelfModel == ShelfModel.none) {
-      body = const Center(
-        child: Text("加载中..."),
+    if (_poseModel == PoseModel.none) {
+      body = Center(
+        child: Text(_showDisplay),
       );
     } else {
       SliverGridDelegate gridDelegate;
-      if (_shelfModel == ShelfModel.grid) {
+      if (_poseModel == PoseModel.grid) {
         pmItem.add(createSelectView(Icons.list, '列表模式', 'AA'));
         gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
@@ -122,7 +95,7 @@ class BookShelfState extends State<BookShelf> {
             gridDelegate: gridDelegate,
             itemCount: _bookList.length,
             itemBuilder: (BuildContext context, int index) {
-              return getItemContainer(_shelfModel, _bookList[index]);
+              return getItemContainer(_poseModel, _bookList[index]);
             },
           )),
         ],
@@ -150,28 +123,29 @@ class BookShelfState extends State<BookShelf> {
   }
 
   void onSelectedPopupMenu(String action) {
+    BotToast.showText(text: action);
     switch (action) {
       case 'AA':
-        changeItemLayout(ShelfModel.list);
+        changeItemLayout(PoseModel.list);
         break;
       case 'AB':
-        changeItemLayout(ShelfModel.grid);
+        changeItemLayout(PoseModel.grid);
         break;
       case 'B':
         break;
     }
   }
 
-  void changeItemLayout(ShelfModel shelfModel) {
+  void changeItemLayout(PoseModel shelfModel) {
     setState(() {
-      _shelfModel = shelfModel;
-      widget._keyValue[keyShelfModel] = _shelfModel;
-      SP.setString(keyShelfModel, _shelfModel.name);
+      _poseModel = shelfModel;
+      widget._keyValue[keyShelfPoseModel] = _poseModel;
+      SP.setString(keyShelfPoseModel, _poseModel.name);
     });
   }
 
-  Widget getItemContainer(ShelfModel shelfModel, Book book) {
-    if (shelfModel == ShelfModel.list) {
+  Widget getItemContainer(PoseModel shelfModel, Book book) {
+    if (shelfModel == PoseModel.list) {
       return Container(
         alignment: Alignment.center,
         child: Row(
@@ -243,5 +217,25 @@ class BookShelfState extends State<BookShelf> {
             Text(text),
           ],
         ));
+  }
+
+  @override
+  void error(String error) {
+
+    setState(() {
+      _showDisplay = error;
+    });
+  }
+
+  @override
+  void result(List<Book> data) {
+    widget._listBook.addAll(data);
+    _bookList = (widget._listBook);
+  }
+
+  @override
+  void poseModel(PoseModel poseModel) {
+    widget._keyValue[keyShelfPoseModel] = _poseModel;
+    setState(() {});
   }
 }
