@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:ccbfm_reader/db/dao/book_dao.dart';
 import 'package:ccbfm_reader/db/db_helper.dart';
 import 'package:ccbfm_reader/db/dao/json_data_dao.dart';
+import 'package:ccbfm_reader/db/entity/book.dart';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
@@ -18,4 +20,5 @@ part 'database.g.dart';
 @Database(version: DBConfig.dbVersion, entities: DBConfig.entities)
 abstract class AppDatabase extends FloorDatabase {
   JsonDataDao get jsonDataDao;
+  BookDao get bookDao;
 }

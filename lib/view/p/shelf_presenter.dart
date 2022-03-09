@@ -1,9 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:ccbfm_reader/db/db_helper.dart';
+import 'package:ccbfm_reader/db/entity/book.dart';
 import 'package:ccbfm_reader/db/entity/json_data.dart';
-import 'package:ccbfm_reader/model/book.dart';
 import 'package:ccbfm_reader/persistent/sp.dart';
 import 'package:ccbfm_reader/util/log_utils.dart';
 import 'package:ccbfm_reader/view/constant/shelf_constant.dart';
@@ -11,11 +10,13 @@ import 'package:ccbfm_reader/view/p/base_presenter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 
+
 const String _tag = "BookShelf";
 const bool _out = true;
 
 abstract class ShelfView extends BaseView<List<Book>, String> {
   void poseModel(PoseModel poseModel);
+
   void resultAdd(Book book);
 }
 
@@ -24,14 +25,8 @@ class ShelfPresenter extends BasePresenter<ShelfView> {
 
   void loadBook() {
     DBHelper.db().then((value) {
-      value.jsonDataDao.findAllByType(JsonDataType.book).then((value) {
-        LogUtils.v(_out, _tag, "loadData-length=${value.length}");
-        List<Book> books = [];
-        for (JsonData data in value) {
-          Book book = Book.fromJson(jsonDecode(data.jsonString));
-          books.add(book);
-        }
-
+      value.bookDao.findAll().then((books) {
+        LogUtils.v(_out, _tag, "loadData-length=${books.length}");
         view.result(books);
         _loadPoseModel();
       }).catchError((error) {
@@ -47,7 +42,7 @@ class ShelfPresenter extends BasePresenter<ShelfView> {
       LogUtils.v(_out, _tag, "addBook-path=$pFile");
       String? path = pFile.path;
       if (path != null) {
-        Book book = Book(pFile.name, path);
+        Book book = Book(pFile.name, path, BookType.getType(pFile.name));
         String jsonString = jsonEncode(book);
         LogUtils.v(_out, _tag, "addBook-jsonString=$jsonString");
         DBHelper.db().then((value) {

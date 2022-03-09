@@ -11,6 +11,6 @@ abstract class JsonDataDao extends BaseDao<JsonData>{
   Future<List<JsonData>> findAllByType(int type);
 
   @Query('DELETE FROM $tableName')
-  Future<void> deleteAllData();
+  Future<void> deleteAll();
 }
 

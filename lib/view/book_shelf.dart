@@ -4,13 +4,12 @@ import 'dart:collection';
 import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:ccbfm_reader/db/entity/book.dart';
 import 'package:ccbfm_reader/generated/l10n.dart';
-import 'package:ccbfm_reader/model/book.dart';
 import 'package:ccbfm_reader/persistent/sp.dart';
 import 'package:ccbfm_reader/util/log_utils.dart';
 import 'package:ccbfm_reader/view/constant/shelf_constant.dart';
 import 'package:ccbfm_reader/view/p/shelf_presenter.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 const String _tag = "BookShelf";
@@ -76,7 +75,7 @@ class _BookShelfState extends State<BookShelf> implements ShelfView {
       body = Center(
         child: Text(S.of(context).load_loading),
       );
-    } else if(_bookList.isEmpty){
+    } else if (_bookList.isEmpty) {
       body = Center(
         child: Text(S.of(context).data_none),
       );
@@ -177,7 +176,7 @@ class _BookShelfState extends State<BookShelf> implements ShelfView {
               child: Column(
                 children: [
                   Text(
-                    book.bookName,
+                    book.name,
                     style: const TextStyle(color: Colors.black, fontSize: 20),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -205,7 +204,7 @@ class _BookShelfState extends State<BookShelf> implements ShelfView {
             ),
             SizedBox(
               child: Text(
-                book.bookName,
+                book.name,
                 style: const TextStyle(color: Colors.black, fontSize: 20),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

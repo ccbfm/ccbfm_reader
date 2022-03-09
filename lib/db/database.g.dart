@@ -63,6 +63,8 @@ class _$AppDatabase extends AppDatabase {
 
   JsonDataDao? _jsonDataDaoInstance;
 
+  BookDao? _bookDaoInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
@@ -83,6 +85,8 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `json_data` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `json_type` INTEGER NOT NULL, `json_string` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `book` (`name` TEXT NOT NULL, `path` TEXT NOT NULL, `create_time` INTEGER NOT NULL, `last_time` INTEGER NOT NULL, `type` INTEGER NOT NULL, PRIMARY KEY (`name`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -93,6 +97,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   JsonDataDao get jsonDataDao {
     return _jsonDataDaoInstance ??= _$JsonDataDao(database, changeListener);
+  }
+
+  @override
+  BookDao get bookDao {
+    return _bookDaoInstance ??= _$BookDao(database, changeListener);
   }
 }
 
@@ -149,7 +158,7 @@ class _$JsonDataDao extends JsonDataDao {
   }
 
   @override
-  Future<void> deleteAllData() async {
+  Future<void> deleteAll() async {
     await _queryAdapter.queryNoReturn('DELETE FROM json_data');
   }
 
@@ -174,5 +183,97 @@ class _$JsonDataDao extends JsonDataDao {
   @override
   Future<int> deleteData(JsonData data) {
     return _jsonDataDeletionAdapter.deleteAndReturnChangedRows(data);
+  }
+}
+
+class _$BookDao extends BookDao {
+  _$BookDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database),
+        _bookInsertionAdapter = InsertionAdapter(
+            database,
+            'book',
+            (Book item) => <String, Object?>{
+                  'name': item.name,
+                  'path': item.path,
+                  'create_time': item.createTime,
+                  'last_time': item.lastTime,
+                  'type': item.type
+                }),
+        _bookUpdateAdapter = UpdateAdapter(
+            database,
+            'book',
+            ['name'],
+            (Book item) => <String, Object?>{
+                  'name': item.name,
+                  'path': item.path,
+                  'create_time': item.createTime,
+                  'last_time': item.lastTime,
+                  'type': item.type
+                }),
+        _bookDeletionAdapter = DeletionAdapter(
+            database,
+            'book',
+            ['name'],
+            (Book item) => <String, Object?>{
+                  'name': item.name,
+                  'path': item.path,
+                  'create_time': item.createTime,
+                  'last_time': item.lastTime,
+                  'type': item.type
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Book> _bookInsertionAdapter;
+
+  final UpdateAdapter<Book> _bookUpdateAdapter;
+
+  final DeletionAdapter<Book> _bookDeletionAdapter;
+
+  @override
+  Future<List<Book>> findAll() async {
+    return _queryAdapter.queryList('SELECT * FROM book',
+        mapper: (Map<String, Object?> row) => Book(
+            row['name'] as String, row['path'] as String, row['type'] as int));
+  }
+
+  @override
+  Future<List<Book>> findAllByType(int type) async {
+    return _queryAdapter.queryList('SELECT * FROM book WHERE type = ?1',
+        mapper: (Map<String, Object?> row) => Book(
+            row['name'] as String, row['path'] as String, row['type'] as int),
+        arguments: [type]);
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM book');
+  }
+
+  @override
+  Future<List<int>> insertDataList(List<Book> dataList) {
+    return _bookInsertionAdapter.insertListAndReturnIds(
+        dataList, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> insertData(Book data) {
+    return _bookInsertionAdapter.insertAndReturnId(
+        data, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> updateData(Book data) {
+    return _bookUpdateAdapter.updateAndReturnChangedRows(
+        data, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> deleteData(Book data) {
+    return _bookDeletionAdapter.deleteAndReturnChangedRows(data);
   }
 }

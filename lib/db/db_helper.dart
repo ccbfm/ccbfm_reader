@@ -1,13 +1,14 @@
 //
 
 import 'package:ccbfm_reader/db/database.dart';
+import 'package:ccbfm_reader/db/entity/book.dart';
 import 'package:ccbfm_reader/db/entity/json_data.dart';
 import 'package:ccbfm_reader/util/log_utils.dart';
 
 class DBConfig {
   static const String dbName = "ccbfm_reader.db";
   static const int dbVersion = 1;
-  static const List<Type> entities = [JsonData];
+  static const List<Type> entities = [JsonData, Book];
 }
 
 class DBHelper {
