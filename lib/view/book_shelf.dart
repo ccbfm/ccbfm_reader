@@ -1,13 +1,16 @@
 //
 
 import 'dart:collection';
+import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ccbfm_reader/generated/l10n.dart';
 import 'package:ccbfm_reader/model/book.dart';
 import 'package:ccbfm_reader/persistent/sp.dart';
+import 'package:ccbfm_reader/util/log_utils.dart';
 import 'package:ccbfm_reader/view/constant/shelf_constant.dart';
 import 'package:ccbfm_reader/view/p/shelf_presenter.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 const String _tag = "BookShelf";
@@ -28,14 +31,13 @@ class BookShelf extends StatefulWidget {
   final HashMap<String, Object> _keyValue = HashMap();
 
   @override
-  State<BookShelf> createState() => BookShelfState();
+  State<BookShelf> createState() => _BookShelfState();
 }
 
-class BookShelfState extends State<BookShelf> implements ShelfView {
+class _BookShelfState extends State<BookShelf> implements ShelfView {
   PoseModel _poseModel = PoseModel.none;
   List<Book> _bookList = [];
   late ShelfPresenter _presenter;
-  late String _showDisplay;
 
   @override
   void initState() {
@@ -44,29 +46,43 @@ class BookShelfState extends State<BookShelf> implements ShelfView {
   }
 
   void _loadData() {
-    _showDisplay = S.of(context).load_loading;
     _presenter = ShelfPresenter(this, context);
+    LogUtils.v(_out, _tag, "_listBook=${widget._listBook.isEmpty}");
     if (widget._listBook.isEmpty) {
       _presenter.loadBook();
     } else {
-      _poseModel = widget._keyValue[keyShelfPoseModel] as PoseModel;
+      var v = widget._keyValue[keyShelfPoseModel];
+      LogUtils.v(_out, _tag, "keyShelfPoseModel=$v");
+      if (v != null) {
+        _poseModel = v as PoseModel;
+      }
       _bookList = (widget._listBook);
     }
+    LogUtils.v(_out, _tag, "_poseModel=$_poseModel");
   }
 
   @override
   Widget build(BuildContext context) {
-
     List<PopupMenuItem<String>> pmItem = [];
+    if (_poseModel == PoseModel.list) {
+      pmItem.add(createSelectView(Icons.apps, '网格模式', 'AB'));
+    } else {
+      pmItem.add(createSelectView(Icons.list, '列表模式', 'AA'));
+    }
+    pmItem.add(createSelectView(Icons.file_download, '导入图书', 'B'));
+
     Widget body;
     if (_poseModel == PoseModel.none) {
       body = Center(
-        child: Text(_showDisplay),
+        child: Text(S.of(context).load_loading),
+      );
+    } else if(_bookList.isEmpty){
+      body = Center(
+        child: Text(S.of(context).data_none),
       );
     } else {
       SliverGridDelegate gridDelegate;
       if (_poseModel == PoseModel.grid) {
-        pmItem.add(createSelectView(Icons.list, '列表模式', 'AA'));
         gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           crossAxisSpacing: 10,
@@ -74,7 +90,6 @@ class BookShelfState extends State<BookShelf> implements ShelfView {
           childAspectRatio: 0.55,
         );
       } else {
-        pmItem.add(createSelectView(Icons.apps, '网格模式', 'AB'));
         gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 1,
           crossAxisSpacing: 10,
@@ -82,7 +97,6 @@ class BookShelfState extends State<BookShelf> implements ShelfView {
           childAspectRatio: 3,
         );
       }
-      pmItem.add(createSelectView(Icons.file_download, '导入图书', 'B'));
 
       body = Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -123,7 +137,6 @@ class BookShelfState extends State<BookShelf> implements ShelfView {
   }
 
   void onSelectedPopupMenu(String action) {
-    BotToast.showText(text: action);
     switch (action) {
       case 'AA':
         changeItemLayout(PoseModel.list);
@@ -132,6 +145,7 @@ class BookShelfState extends State<BookShelf> implements ShelfView {
         changeItemLayout(PoseModel.grid);
         break;
       case 'B':
+        _presenter.addBook();
         break;
     }
   }
@@ -221,10 +235,7 @@ class BookShelfState extends State<BookShelf> implements ShelfView {
 
   @override
   void error(String error) {
-
-    setState(() {
-      _showDisplay = error;
-    });
+    BotToast.showText(text: error);
   }
 
   @override
@@ -235,7 +246,14 @@ class BookShelfState extends State<BookShelf> implements ShelfView {
 
   @override
   void poseModel(PoseModel poseModel) {
-    widget._keyValue[keyShelfPoseModel] = _poseModel;
+    widget._keyValue[keyShelfPoseModel] = poseModel;
+    _poseModel = poseModel;
+    setState(() {});
+  }
+
+  @override
+  void resultAdd(Book book) {
+    _bookList.add(book);
     setState(() {});
   }
 }

@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:ccbfm_reader/generated/l10n.dart';
 import 'package:ccbfm_reader/view/book_search.dart';
 import 'package:ccbfm_reader/view/book_settings.dart';
@@ -17,6 +18,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    ///BotToast初始化
+    final botToastBuilder = BotToastInit();
     return MaterialApp(
       theme: ThemeData(
         // This is the theme of your application.
@@ -38,6 +41,11 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: S.delegate.supportedLocales,
       home: const MyHomePage(),
+      builder: (context, child) {
+        child = botToastBuilder(context, child);
+        return child;
+      },
+      navigatorObservers: [BotToastNavigatorObserver()],
     );
   }
 }

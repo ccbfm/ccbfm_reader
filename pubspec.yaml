@@ -38,6 +38,7 @@ dependencies:
   shared_preferences: ^2.0.13
   floor: ^1.2.0
   bot_toast: ^4.0.1
+  file_picker: ^4.5.0
 
 dev_dependencies:
   flutter_test:

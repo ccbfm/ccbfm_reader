@@ -142,8 +142,9 @@ class _$JsonDataDao extends JsonDataDao {
   Future<List<JsonData>> findAllByType(int type) async {
     return _queryAdapter.queryList(
         'SELECT * FROM json_data WHERE json_type = ?1',
-        mapper: (Map<String, Object?> row) => JsonData(row['id'] as int?,
-            row['json_type'] as int, row['json_string'] as String),
+        mapper: (Map<String, Object?> row) => JsonData(
+            row['json_type'] as int, row['json_string'] as String,
+            id: row['id'] as int?),
         arguments: [type]);
   }
 

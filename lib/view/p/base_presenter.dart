@@ -9,7 +9,8 @@ abstract class BaseView<T, R> {
 class BasePresenter<V extends BaseView> {
 
   V view;
-  BuildContext? context;
+
+  BuildContext context;
 
   BasePresenter(this.view, this.context);
 }

@@ -12,7 +12,7 @@ class JsonData{
   @ColumnInfo(name: "json_string")
   final String jsonString;
 
-  JsonData(this.id, this.type, this.jsonString);
+  JsonData(this.type, this.jsonString, {this.id});
 }
 
 class JsonDataType {
