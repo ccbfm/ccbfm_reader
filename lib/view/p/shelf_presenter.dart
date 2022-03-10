@@ -1,21 +1,18 @@
-import 'dart:convert';
-
 import 'package:ccbfm_reader/db/db_helper.dart';
 import 'package:ccbfm_reader/db/entity/book.dart';
-import 'package:ccbfm_reader/db/entity/json_data.dart';
 import 'package:ccbfm_reader/persistent/sp.dart';
 import 'package:ccbfm_reader/util/log_utils.dart';
+import 'package:ccbfm_reader/util/md5.dart';
 import 'package:ccbfm_reader/view/constant/shelf_constant.dart';
 import 'package:ccbfm_reader/view/p/base_presenter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 
-
 const String _tag = "BookShelf";
 const bool _out = true;
 
 abstract class ShelfView extends BaseView<List<Book>, String> {
-  void poseModel(PoseModel poseModel);
+  void resultPoseModel(PoseModel poseModel);
 
   void resultAdd(Book book);
 }
@@ -30,7 +27,7 @@ class ShelfPresenter extends BasePresenter<ShelfView> {
         view.result(books);
         _loadPoseModel();
       }).catchError((error) {
-        view.error(error);
+        view.error(error.toString());
       });
     });
   }
@@ -42,12 +39,17 @@ class ShelfPresenter extends BasePresenter<ShelfView> {
       LogUtils.v(_out, _tag, "addBook-path=$pFile");
       String? path = pFile.path;
       if (path != null) {
-        Book book = Book(pFile.name, path, BookType.getType(pFile.name));
-        String jsonString = jsonEncode(book);
-        LogUtils.v(_out, _tag, "addBook-jsonString=$jsonString");
+        Book book = Book(Md5.generateMd5(path), pFile.name, path,
+            BookType.getType(pFile.name));
+        LogUtils.v(_out, _tag, "addBook-book=$book");
         DBHelper.db().then((value) {
-          value.jsonDataDao.insertData(JsonData(JsonDataType.book, jsonString));
-          view.resultAdd(book);
+          value.bookDao.insertData(book).then((value) {
+            LogUtils.v(_out, _tag, "addBook-value=$value");
+            view.resultAdd(book);
+          }).catchError((error) {
+            LogUtils.v(_out, _tag, "addBook-error=$error");
+            view.error("文件已存在");
+          });
         });
       } else {
         view.error("路径为空");
@@ -65,7 +67,11 @@ class ShelfPresenter extends BasePresenter<ShelfView> {
       } else if (value == PoseModel.list.name) {
         poseModel = PoseModel.list;
       }
-      view.poseModel(poseModel);
+      view.resultPoseModel(poseModel);
     });
+  }
+
+  void savePoseModel(PoseModel poseModel){
+    SP.setString(keyShelfPoseModel, poseModel.name);
   }
 }

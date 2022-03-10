@@ -4,6 +4,9 @@ import 'package:floor/floor.dart';
 @Entity(tableName: "book")
 class Book {
   @PrimaryKey()
+  @ColumnInfo(name: "key")
+  final String key;
+
   @ColumnInfo(name: "name")
   final String name;
 
@@ -19,8 +22,12 @@ class Book {
   @ColumnInfo(name: "type")
   final int type;
 
-  Book(this.name, this.path, this.type);
+  Book(this.key, this.name, this.path, this.type);
 
+  @override
+  String toString() {
+    return 'Book{name: $name, path: $path}';
+  }
 }
 
 class BookType {

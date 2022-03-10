@@ -4,11 +4,14 @@ import 'package:floor/floor.dart';
 
 abstract class BaseDao<T> {
 
-  @insert
+  @Insert()
   Future<List<int>> insertDataList(List<T> dataList);
 
-  @insert
+  @Insert()
   Future<int> insertData(T data);
+
+  @Insert(onConflict: OnConflictStrategy.fail)
+  Future<int> insertDataRF(T data);
 
   @update
   Future<int> updateData(T data);

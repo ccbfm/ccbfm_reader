@@ -1,12 +1,10 @@
 //
 
 import 'dart:collection';
-import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ccbfm_reader/db/entity/book.dart';
 import 'package:ccbfm_reader/generated/l10n.dart';
-import 'package:ccbfm_reader/persistent/sp.dart';
 import 'package:ccbfm_reader/util/log_utils.dart';
 import 'package:ccbfm_reader/view/constant/shelf_constant.dart';
 import 'package:ccbfm_reader/view/p/shelf_presenter.dart';
@@ -31,6 +29,7 @@ class BookShelf extends StatefulWidget {
 
   @override
   State<BookShelf> createState() => _BookShelfState();
+
 }
 
 class _BookShelfState extends State<BookShelf> implements ShelfView {
@@ -42,6 +41,13 @@ class _BookShelfState extends State<BookShelf> implements ShelfView {
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget._keyValue.clear();
+    widget._listBook.clear();
   }
 
   void _loadData() {
@@ -138,10 +144,10 @@ class _BookShelfState extends State<BookShelf> implements ShelfView {
   void onSelectedPopupMenu(String action) {
     switch (action) {
       case 'AA':
-        changeItemLayout(PoseModel.list);
+        changeItemLayout(PoseModel.list, true);
         break;
       case 'AB':
-        changeItemLayout(PoseModel.grid);
+        changeItemLayout(PoseModel.grid, true);
         break;
       case 'B':
         _presenter.addBook();
@@ -149,12 +155,13 @@ class _BookShelfState extends State<BookShelf> implements ShelfView {
     }
   }
 
-  void changeItemLayout(PoseModel shelfModel) {
-    setState(() {
-      _poseModel = shelfModel;
-      widget._keyValue[keyShelfPoseModel] = _poseModel;
-      SP.setString(keyShelfPoseModel, _poseModel.name);
-    });
+  void changeItemLayout(PoseModel poseModel, bool save) {
+    _poseModel = poseModel;
+    widget._keyValue[keyShelfPoseModel] = poseModel;
+    if (save) {
+      _presenter.savePoseModel(poseModel);
+    }
+    setState(() {});
   }
 
   Widget getItemContainer(PoseModel shelfModel, Book book) {
@@ -244,10 +251,8 @@ class _BookShelfState extends State<BookShelf> implements ShelfView {
   }
 
   @override
-  void poseModel(PoseModel poseModel) {
-    widget._keyValue[keyShelfPoseModel] = poseModel;
-    _poseModel = poseModel;
-    setState(() {});
+  void resultPoseModel(PoseModel poseModel) {
+    changeItemLayout(poseModel, false);
   }
 
   @override

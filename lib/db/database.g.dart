@@ -86,7 +86,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `json_data` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `json_type` INTEGER NOT NULL, `json_string` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `book` (`name` TEXT NOT NULL, `path` TEXT NOT NULL, `create_time` INTEGER NOT NULL, `last_time` INTEGER NOT NULL, `type` INTEGER NOT NULL, PRIMARY KEY (`name`))');
+            'CREATE TABLE IF NOT EXISTS `book` (`key` TEXT NOT NULL, `name` TEXT NOT NULL, `path` TEXT NOT NULL, `create_time` INTEGER NOT NULL, `last_time` INTEGER NOT NULL, `type` INTEGER NOT NULL, PRIMARY KEY (`key`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -175,6 +175,12 @@ class _$JsonDataDao extends JsonDataDao {
   }
 
   @override
+  Future<int> insertDataRF(JsonData data) {
+    return _jsonDataInsertionAdapter.insertAndReturnId(
+        data, OnConflictStrategy.fail);
+  }
+
+  @override
   Future<int> updateData(JsonData data) {
     return _jsonDataUpdateAdapter.updateAndReturnChangedRows(
         data, OnConflictStrategy.abort);
@@ -193,6 +199,7 @@ class _$BookDao extends BookDao {
             database,
             'book',
             (Book item) => <String, Object?>{
+                  'key': item.key,
                   'name': item.name,
                   'path': item.path,
                   'create_time': item.createTime,
@@ -202,8 +209,9 @@ class _$BookDao extends BookDao {
         _bookUpdateAdapter = UpdateAdapter(
             database,
             'book',
-            ['name'],
+            ['key'],
             (Book item) => <String, Object?>{
+                  'key': item.key,
                   'name': item.name,
                   'path': item.path,
                   'create_time': item.createTime,
@@ -213,8 +221,9 @@ class _$BookDao extends BookDao {
         _bookDeletionAdapter = DeletionAdapter(
             database,
             'book',
-            ['name'],
+            ['key'],
             (Book item) => <String, Object?>{
+                  'key': item.key,
                   'name': item.name,
                   'path': item.path,
                   'create_time': item.createTime,
@@ -237,14 +246,14 @@ class _$BookDao extends BookDao {
   @override
   Future<List<Book>> findAll() async {
     return _queryAdapter.queryList('SELECT * FROM book',
-        mapper: (Map<String, Object?> row) => Book(
+        mapper: (Map<String, Object?> row) => Book(row['key'] as String,
             row['name'] as String, row['path'] as String, row['type'] as int));
   }
 
   @override
   Future<List<Book>> findAllByType(int type) async {
     return _queryAdapter.queryList('SELECT * FROM book WHERE type = ?1',
-        mapper: (Map<String, Object?> row) => Book(
+        mapper: (Map<String, Object?> row) => Book(row['key'] as String,
             row['name'] as String, row['path'] as String, row['type'] as int),
         arguments: [type]);
   }
@@ -264,6 +273,12 @@ class _$BookDao extends BookDao {
   Future<int> insertData(Book data) {
     return _bookInsertionAdapter.insertAndReturnId(
         data, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> insertDataRF(Book data) {
+    return _bookInsertionAdapter.insertAndReturnId(
+        data, OnConflictStrategy.fail);
   }
 
   @override
