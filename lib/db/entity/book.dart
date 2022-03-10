@@ -1,4 +1,4 @@
-
+import 'package:ccbfm_reader/util/md5.dart';
 import 'package:floor/floor.dart';
 
 @Entity(tableName: "book")
@@ -24,6 +24,11 @@ class Book {
 
   Book(this.key, this.name, this.path, this.type);
 
+  @ignore
+  static Book createBook(String name, String path) {
+    return Book(Md5.generateMd5(path), name, path, BookType.getType(name));
+  }
+
   @override
   String toString() {
     return 'Book{name: $name, path: $path}';
@@ -34,8 +39,8 @@ class BookType {
   static const int unknown = 0;
   static const int txt = 1;
 
-  static int getType(String name){
-    if(name.contains(".txt")){
+  static int getType(String name) {
+    if (name.contains(".txt")) {
       return txt;
     }
     return unknown;

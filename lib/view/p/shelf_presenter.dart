@@ -2,7 +2,6 @@ import 'package:ccbfm_reader/db/db_helper.dart';
 import 'package:ccbfm_reader/db/entity/book.dart';
 import 'package:ccbfm_reader/persistent/sp.dart';
 import 'package:ccbfm_reader/util/log_utils.dart';
-import 'package:ccbfm_reader/util/md5.dart';
 import 'package:ccbfm_reader/view/constant/shelf_constant.dart';
 import 'package:ccbfm_reader/view/p/base_presenter.dart';
 import 'package:file_picker/file_picker.dart';
@@ -39,8 +38,7 @@ class ShelfPresenter extends BasePresenter<ShelfView> {
       LogUtils.v(_out, _tag, "addBook-path=$pFile");
       String? path = pFile.path;
       if (path != null) {
-        Book book = Book(Md5.generateMd5(path), pFile.name, path,
-            BookType.getType(pFile.name));
+        Book book = Book.createBook(pFile.name, path);
         LogUtils.v(_out, _tag, "addBook-book=$book");
         DBHelper.db().then((value) {
           value.bookDao.insertData(book).then((value) {
