@@ -25,7 +25,7 @@ class Book {
   Book(this.key, this.name, this.path, this.type);
 
   @ignore
-  static Book createBook(String name, String path) {
+  static Book build(String name, String path) {
     return Book(Md5.generateMd5(path), name, path, BookType.getType(name));
   }
 

@@ -38,7 +38,7 @@ class ShelfPresenter extends BasePresenter<ShelfView> {
       LogUtils.v(_out, _tag, "addBook-path=$pFile");
       String? path = pFile.path;
       if (path != null) {
-        Book book = Book.createBook(pFile.name, path);
+        Book book = Book.build(pFile.name, path);
         LogUtils.v(_out, _tag, "addBook-book=$book");
         DBHelper.db().then((value) {
           value.bookDao.insertData(book).then((value) {
